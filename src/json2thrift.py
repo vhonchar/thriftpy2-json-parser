@@ -76,27 +76,27 @@ class ThriftJSONDecoder(json.JSONDecoder):
         return bool(value)
 
     def _to_set(self, value: Any, **kwargs):
-        element_ttype, element_def = self._parse_thrift_array_def(kwargs)
+        element_ttype, element_def = self._decompose_thrift_field_def(kwargs['thrift_class'])
         return {self._convert(x, element_ttype, kwargs['field_path'], element_def) for x in value}
 
     def _to_list(self, value: Any, **kwargs):
-        (element_ttype, element_def) = self._parse_thrift_array_def(kwargs)
+        (element_ttype, element_def) = self._decompose_thrift_field_def(kwargs['thrift_class'])
         return [self._convert(x, element_ttype, kwargs['field_path'], element_def) for x in value]
-
-    def _parse_thrift_array_def(self, kwargs):
-        thrift_class = kwargs['thrift_class']
-        if isinstance(thrift_class, int):
-            return thrift_class, None
-        else:
-            (element_ttype, element_def) = thrift_class
-            return element_ttype, element_def
 
     def _to_map(self, value: Any, **kwargs):
         thrift_class = kwargs['thrift_class']
-        (key_ttype, (val_ttype, val_thrift_class)) = thrift_class
+        (key_ttype, value_def) = thrift_class
+        (val_ttype, val_thrift_class) = self._decompose_thrift_field_def(value_def)
 
         return dict([(self._convert(k, key_ttype, kwargs['field_path']),
                       self._convert(v, val_ttype, kwargs['field_path'], val_thrift_class)) for (k, v) in value.items()])
+
+    def _decompose_thrift_field_def(self, field_def):
+        if isinstance(field_def, int):
+            return field_def, None
+        else:
+            (field_ttype, field_class) = field_def
+            return field_ttype, field_class
 
 
 def json2thrift(json_str: str | dict, thrift_class):

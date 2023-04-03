@@ -15,6 +15,7 @@ struct SimpleObject {
   3: Enum action,
   4: bool valid,
   5: set<string> msgs,
+  6: map<string, string> mapped,
 }
 
 struct ObjectWrapper {

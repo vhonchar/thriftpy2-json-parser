@@ -15,10 +15,21 @@ def test_parsing_simple_field_types():
       "status": 0,
       "action": 666,
       "valid": true,
-      "msgs": ["message 1", "message 2"]
+      "msgs": ["message 1", "message 2"],
+      "mapped": {
+        "key1": "value 1",
+        "key2": "value 2"
+      }
     }
     """
-    expected = loadedTypes.SimpleObject(1234, 0, 666, True, {"message 1", "message 2"})
+    expected = loadedTypes.SimpleObject(
+        id=1234,
+        status=0,
+        action=666,
+        valid=True,
+        msgs={'message 1', 'message 2'},
+        mapped={"key1": "value 1", "key2": "value 2"},
+    )
     assert expected == json2thrift(input_json, loadedTypes.SimpleObject)
 
 
