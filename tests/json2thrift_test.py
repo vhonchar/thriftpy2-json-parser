@@ -3,7 +3,7 @@ import os.path
 import pytest
 import thriftpy2
 
-from src.json2thrift import json2thrift
+from json2thrift import json2thrift
 
 loadedTypes = thriftpy2.load(f'{os.path.abspath(__file__)}/../example.thrift')
 

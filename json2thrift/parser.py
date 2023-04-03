@@ -5,6 +5,7 @@ from typing import Any, cast
 
 from thriftpy2.thrift import TType
 
+
 class ThriftJSONDecoder(json.JSONDecoder):
 
     def __init__(self, *args, **kwargs):
@@ -105,6 +106,3 @@ class ThriftJSONDecoder(json.JSONDecoder):
 
 def json2thrift(json_str: str | dict, thrift_class):
     return json.loads(json_str, cls=ThriftJSONDecoder, thrift_class=thrift_class)
-
-
-dict2thrift = json2thrift
