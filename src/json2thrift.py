@@ -33,7 +33,7 @@ class ThriftJSONDecoder(json.JSONDecoder):
 
     def _convert(self, value: Any, ttype: int, field_path: str, thrift_class=None):
         if ttype not in self._converters:
-            raise TypeError('Unrecognized thrift field type: %d' % ttype)
+            raise TypeError(f"Unrecognized thrift field type: {ttype}")
 
         return self._converters[ttype](value, thrift_class=thrift_class, field_path=field_path)
 
@@ -58,7 +58,8 @@ class ThriftJSONDecoder(json.JSONDecoder):
 
             if field_name not in value:
                 continue
-            converted_val = self._convert(value[field_name], field_ttype, f"{kwargs['field_path']}/{field_name}", field_class)
+            converted_val = self._convert(value[field_name], field_ttype, f"{kwargs['field_path']}/{field_name}",
+                                          field_class)
             setattr(composable_obj, field_name, converted_val)
         return composable_obj
 
@@ -75,18 +76,20 @@ class ThriftJSONDecoder(json.JSONDecoder):
         return bool(value)
 
     def _to_set(self, value: Any, **kwargs):
-        thrift_class = kwargs['thrift_class']
-        if isinstance(thrift_class, int):
-            element_ttype = thrift_class
-            element_def = None
-        else:
-            (element_ttype, element_def) = thrift_class
+        element_ttype, element_def = self._parse_thrift_array_def(kwargs)
         return {self._convert(x, element_ttype, kwargs['field_path'], element_def) for x in value}
 
     def _to_list(self, value: Any, **kwargs):
-        thrift_class = kwargs['thrift_class']
-        (element_ttype, element_def) = thrift_class
+        (element_ttype, element_def) = self._parse_thrift_array_def(kwargs)
         return [self._convert(x, element_ttype, kwargs['field_path'], element_def) for x in value]
+
+    def _parse_thrift_array_def(self, kwargs):
+        thrift_class = kwargs['thrift_class']
+        if isinstance(thrift_class, int):
+            return thrift_class, None
+        else:
+            (element_ttype, element_def) = thrift_class
+            return element_ttype, element_def
 
     def _to_map(self, value: Any, **kwargs):
         thrift_class = kwargs['thrift_class']
